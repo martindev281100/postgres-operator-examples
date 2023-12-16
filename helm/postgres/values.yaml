@@ -9,14 +9,13 @@
 
 # name is the name of the cluster. This defaults to the name of the Helm
 # release.
-# name: hippo
+name: postgres
 
 # postgresVersion sets the version to deploy. This version number needs to be
 # available as one of the "RELATED_IMAGE_POSTGRES_..." images as part of the PGO
 # installation if you want to deploy the image without setting the "postgres"
 # image variable. This value is required.
-postgresVersion: 16
-
+postgresVersion: 15
 # postGISVersion if set and coupled with a PostGIS enabled container, enables
 # PostGIS. This version number needs to be available as one of the
 # "RELATED_IMAGE_POSTGRES_..." images as part of the PGO installation if you
@@ -32,8 +31,7 @@ postgresVersion: 16
 # "pgBouncerConfig". Setting "pgBouncerConfig" will override the value of
 # pgBouncerReplicas. The "RELATED_IMAGE_PGBOUNCER" in the PGO deployment must be
 # set if you want to enable this without explicitly setting "pgBouncer".
-# pgBouncerReplicas: 1
-
+pgBouncerReplicas: 2
 # monitoring enables the ability to monitor the Postgres cluster through a
 # metrics exporter that can be scraped by Prometheus. This defaults to the value
 # below.
@@ -71,8 +69,7 @@ postgresVersion: 16
 
 # instanceSize sets the size of the volume that contains the data. This defaults
 # to the value below. Settings "instances" overrides this value.
-# instanceSize: 1Gi
-
+instanceSize: 30Gi
 # instanceStorageClassName sets the storage class for the volume that contains the data.
 # This defaults to the "default" storage class defined in the cluster.
 # See: 'kubectl get storageclasses.storage.k8s.io | grep default'
@@ -130,12 +127,29 @@ postgresVersion: 16
 #     postgresql:
 #       parameters:
 #         synchronous_commit: "on"
-# patroni: {}
-
+patroni:
+  dynamicConfiguration:
+    synchronous_mode: true
+    postgresql:
+      parameters:
+        shared_preload_libraries: timescaledb
 # users sets any custom Postgres users and databases that they have  access to
 # as well as any permissions associated with the user account.
-# users: {}
-
+# users:
+#   - name: "_crunchypgbouncer"
+#     password: "|08gUiP-[sOMmme|KImumo6CTDWmbEwm"
+#     database: amazon_utils
+#     permissions:
+#       - database: amazon_utils
+#         schema: public
+#         privileges:
+#           - SELECT
+#           - INSERT
+#           - UPDATE
+#           - DELETE
+#           - TRUNCATE
+#           - REFERENCES
+#           - TRIGGER
 # dataSource specifies a data source for bootstrapping a Postgres cluster.
 # dataSource: {}
 
